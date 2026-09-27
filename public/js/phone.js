@@ -33,6 +33,15 @@ const st = {
 // ------------------------------------------------------------------ join screen
 const nameIn = $('#nameIn');
 if (ROOM) $('.tvlink').href = `/r/${ROOM}/tv`;
+// Room code + invite right on the join screen, so whoever created the room can share it immediately.
+const freshRoom = new URLSearchParams(location.search).has('new');
+if (freshRoom) history.replaceState(null, '', location.pathname);
+if (ROOM) {
+  $('#roomCodeTxt').textContent = fmtCode(ROOM);
+  $('#roomChip').classList.remove('hidden');
+  $('#roomChip').classList.toggle('fresh', freshRoom);
+}
+$('#joinShare').addEventListener('click', () => shareRoom());
 nameIn.value = st.name;
 if (st.id) $('#joinBtn').textContent = 'Waddle back in! 🪿';
 const hero = $('#heroGoose');
@@ -176,6 +185,7 @@ function gameState(m) {
   if (m.phase === 'race') return { cls: 'busy', title: `Race on! ${round}`, sub: "Join now — you'll race in the next game", btn: 'Join the next game 🪿' };
   if (m.phase === 'results') return { cls: 'busy', title: `Between rounds · ${round}`, sub: "Join now — you'll race in the next game", btn: 'Join the next game 🪿' };
   if (m.phase === 'final') return { cls: 'busy', title: 'Award ceremony 🏆', sub: 'A new game starts soon — hop in!', btn: 'Join the next game 🪿' };
+  if (!active.length && freshRoom) return { cls: 'live', title: '🎉 Your room is ready!', sub: 'Invite friends now (or later from the lobby), then waddle in', btn: 'Waddle in! 🪿' };
   if (!active.length) return { cls: 'live', title: 'Lobby open', sub: 'Be the first goose in the pond!', btn: 'Waddle in! 🪿' };
   return { cls: 'live', title: `Lobby open · ${active.length}/8 geese waiting`, sub: host ? `${host.name} 👑 will start the race` : 'Join before the race starts!', btn: 'Waddle in! 🪿' };
 }
@@ -189,6 +199,7 @@ const ROOM_ERRORS = {
 
 function renderJoinStatus(m) {
   if (st.joined) { renderWatchbar(); return; }
+  $('#roomChip').classList.toggle('hidden', !ROOM || !!st.roomErr);
   if (st.roomErr) {
     const e = ROOM_ERRORS[st.roomErr];
     const el = $('#joinStatus');
@@ -275,7 +286,7 @@ function renderLobby() {
   } else action = `<div class="wait">Waiting for <b>${esc(host ? host.name : 'the host')}</b> to start… <span class="dots"><i>.</i><i>.</i><i>.</i></span></div>`;
   el.innerHTML = `
     <div class="lc-top"><span class="lc-title">🪿 ${players.length}/8 geese in the pond</span><button id="honkBtn" class="pill">📯 Honk</button></div>
-    <div class="roomrow"><span class="rcode">Room <b>${fmtCode(ROOM)}</b>${L.locked ? ' · 🔒 locked' : ''}</span><button id="shareBtn" class="pill">🔗 Invite friends</button></div>
+    <div class="roomrow"><span class="rcode">Room <b>${fmtCode(ROOM)}</b>${L.locked ? ' · 🔒 locked' : ''}</span><button id="shareBtn" class="${players.length <= 1 ? 'go invite-nudge' : 'pill'}">🔗 Invite friends</button></div>
     <div class="roster">${chips}</div>
     <div class="lc-hint">Tap your goose to change hats${canKick && players.length > 1 ? ' · ✕ removes a player' : ''}</div>
     ${action}`;

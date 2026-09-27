@@ -474,3 +474,19 @@ body.landing { overflow-y: auto; }
 .land-foot a:hover, .land-foot a:focus-visible { background: rgba(29,18,56,.8); }
 .land-foot svg { width: 16px; height: 16px; }
 #landing .grass { height: 96px; }
+
+/* room code + invite on the join screen */
+.roomchip {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -6px 0 12px;
+  background: rgba(255,255,255,.85); border: 3px solid var(--ink); border-radius: 16px; padding: 6px 6px 6px 14px; box-shadow: 0 4px 0 var(--ink);
+}
+.rc-label { font-size: 14px; color: #5d5378; }
+.rc-label b { font-size: 20px; letter-spacing: 2px; color: var(--ink); }
+.roomchip .pill { font-size: 15px; padding: 7px 12px; box-shadow: 0 3px 0 var(--ink); }
+.roomchip.fresh .pill { background: var(--gold); animation: throb .6s ease-in-out infinite alternate; }
+.roomrow .go.invite-nudge { font-size: 14px; padding: 5px 12px; box-shadow: 0 3px 0 var(--ink); animation: throb .6s ease-in-out infinite alternate; }
+
+/* join screen: tips as a compact 2×2 grid so the room chip fits above the fold */
+#join .how { grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+#join .how li { font-size: 13px; line-height: 1.2; padding: 6px 8px; gap: 6px; }
+#join .how span { font-size: 17px; }

@@ -23,7 +23,7 @@ async function create(tv) {
       msg.textContent = r.status === 429 ? 'Whoa, lots of rooms from here. Try again in a few minutes.' : 'The pond is packed right now. Try again in a minute.';
       return;
     }
-    location.href = `/r/${j.code}${tv ? '/tv' : ''}`;
+    location.href = `/r/${j.code}${tv ? '/tv' : '?new=1'}`;
   } catch {
     msg.textContent = "Couldn't reach the server. Check your connection.";
   } finally {

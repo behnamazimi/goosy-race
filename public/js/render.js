@@ -174,7 +174,8 @@ export function drawGoose(ctx, x, y, o) {
     else if (o.air) a = back ? -0.7 : -0.4;
     else if (o.frozen || o.stun) a = back ? -0.15 : 0.15;
     else a = Math.sin(o.phase + (back ? Math.PI : 0)) * (0.2 + run * 0.55);
-    const lift = !o.air && !o.fly ? Math.max(0, -Math.cos(o.phase + (back ? Math.PI : 0))) * 9 * run : 6;
+    // a foot is lifted while it swings forward (cos > 0) and planted while it pushes back
+    const lift = !o.air && !o.fly ? Math.max(0, Math.cos(o.phase + (back ? Math.PI : 0))) * 9 * run : 6;
     const hx = back ? -3 : 6, hy = -28;
     const fx = hx + Math.sin(a) * 26, fy = hy + Math.cos(a) * 28 - lift;
     const col = back ? '#e07a10' : '#ff9a1f';
