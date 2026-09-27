@@ -1,5 +1,6 @@
 import * as S from '../shared/sim.js';
 import { drawGooseIcon } from './render.js';
+import { bindCodeInput, normCode, createAndGo } from './room.js';
 
 const $ = (s) => document.querySelector(s);
 const msg = $('#landMsg');
@@ -17,13 +18,8 @@ async function create(tv) {
   msg.textContent = 'Building a pond…';
   $('#createBtn').disabled = true;
   try {
-    const r = await fetch('/api/rooms', { method: 'POST' });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      msg.textContent = r.status === 429 ? 'Whoa, lots of rooms from here. Try again in a few minutes.' : 'The pond is packed right now. Try again in a minute.';
-      return;
-    }
-    location.href = `/r/${j.code}${tv ? '/tv' : '?new=1'}`;
+    const status = await createAndGo(tv);
+    if (status) msg.textContent = status === 429 ? 'Whoa, lots of rooms from here. Try again in a few minutes.' : 'The pond is packed right now. Try again in a minute.';
   } catch {
     msg.textContent = "Couldn't reach the server. Check your connection.";
   } finally {
@@ -35,13 +31,10 @@ $('#createBtn').addEventListener('click', () => create(false));
 $('#createTvBtn').addEventListener('click', () => create(true));
 
 const codeIn = $('#codeIn');
-codeIn.addEventListener('input', () => {
-  const c = codeIn.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
-  codeIn.value = c.length > 3 ? `${c.slice(0, 3)}-${c.slice(3)}` : c;
-});
+bindCodeInput(codeIn);
 $('#joinCode').addEventListener('submit', (e) => {
   e.preventDefault();
-  const c = codeIn.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const c = normCode(codeIn.value);
   if (c.length !== 5) { msg.textContent = 'Room codes have 5 characters, like KQ7-PZ.'; return; }
   location.href = `/r/${c}`;
 });

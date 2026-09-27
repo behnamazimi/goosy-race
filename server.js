@@ -23,6 +23,10 @@ const LIMITS = {
   missesPer10MinPerIp: 40,    // looking up codes that don't exist (guessing)
   msgBurst: 120, msgPerSec: 60, // per-socket token bucket
   roomIdleMs: 5 * 60 * 1000,  // delete rooms nobody has been in for this long
+  // Put a room to sleep after this long without gameplay, even if screens are still open (a TV left on
+  // overnight would otherwise keep the room and the machine alive forever).
+  roomSleepMs: envInt('GOOSY_IDLE_CLOSE_MS', 60 * 60 * 1000),
+  socketsPerRoom: envInt('GOOSY_SOCKETS_PER_ROOM', 30), // 8 players + TVs + spectators
 };
 
 // Room codes: 5 chars without look-alikes (no I, O, 0, 1) → ~33 million combinations.
@@ -109,19 +113,28 @@ setInterval(() => {
   if (ms > 25 && now - slowWarnAt > 10000) { slowWarnAt = now; log(`slow tick: ${ms.toFixed(1)} ms for ${rooms.size} rooms, ${wss.clients.size} sockets`); }
 }, TICK_MS);
 
+function closeRoom(code, room, why) {
+  room.destroy();
+  rooms.delete(code);
+  log(`[${code}] room closed (${why}) (${rooms.size} rooms)`);
+}
+
 setInterval(() => {
   const now = Date.now();
   for (const [code, room] of rooms) {
     try {
       if (room.game.phase === 'lobby' || room.game.phase === 'final') room.pruneDisconnected(45000);
     } catch (e) { log(`[${code}] prune error: ${e.stack || e}`); }
-    if (!room.sockets.size && now - room.emptySince > LIMITS.roomIdleMs) {
-      room.destroy();
-      rooms.delete(code);
-      log(`[${code}] room closed (idle) (${rooms.size} rooms)`);
+    if (!room.sockets.size && now - room.emptySince > LIMITS.roomIdleMs) closeRoom(code, room, 'empty');
+    else if (room.sockets.size && now - room.lastActivity > LIMITS.roomSleepMs) {
+      // tell the open screens, then hang up; clients stop reconnecting until someone taps "wake it up"
+      room.broadcast({ type: 'sleep' });
+      for (const ws of room.sockets) { ws.room = null; try { ws.close(4000, 'room asleep'); } catch {} }
+      room.sockets.clear();
+      closeRoom(code, room, 'asleep after inactivity');
     }
   }
-}, 5000).unref();
+}, Math.min(5000, Math.max(250, LIMITS.roomSleepMs / 4))).unref();
 
 // ---------------------------------------------------------------- static files
 const MIME = {
@@ -235,6 +248,7 @@ wss.on('connection', (ws, req) => {
   const code = normCode(new URL(req.url, 'http://x').searchParams.get('room'));
   const validCode = CODE_RE.test(code);
   const existing = validCode ? rooms.get(code) : null;
+  if (existing && existing.sockets.size >= LIMITS.socketsPerRoom) { send(ws, { type: 'roomfull' }); ws.close(1013, 'room full'); return; }
   if (existing) existing.attach(ws);
   else {
     ws.wantCode = validCode ? code : null;
