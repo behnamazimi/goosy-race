@@ -1,9 +1,8 @@
 name: Deploy to Fly.io
 
-# Deploys when a pull request is merged into main (and on demand from the Actions tab).
+# Deploys on every push to main (a merged PR is a push too), and on demand from the Actions tab.
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -17,13 +16,10 @@ concurrency:
 
 jobs:
   test:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: main
       - uses: actions/setup-node@v7
         with:
           node-version: 26
@@ -40,8 +36,6 @@ jobs:
       url: https://goosy-race.fly.dev
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: main
       # pinned to flyctl-actions master (Node 24 runtime; newest tag 1.5 still targets the deprecated Node 20)
       - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1
       - run: flyctl deploy --remote-only --ha=false
