@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goosy Race · Big Screen</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪿</text></svg>">
+<link rel="stylesheet" href="/fonts/fredoka.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="tv">
+<div id="tv">
+  <canvas id="cv"></canvas>
+  <div id="tvLobby">
+    <div class="tv-card">
+      <h1 class="logo"><span class="l1">GOOSY</span><span class="l2">RACE</span></h1>
+      <div class="qr"><img id="tvQr" alt="QR code to join the game"></div>
+      <div class="scan">Scan with your phone camera</div>
+      <div class="tvcode">Room <b id="tvCode"></b></div>
+      <div id="tvUrl" class="url"></div>
+      <div id="tvNoRoom" class="hidden">This room doesn't exist. <a href="/">Create a new one</a></div>
+    </div>
+    <div class="tv-side">
+      <div id="tvCount"></div>
+      <div id="tvWait"></div>
+    </div>
+  </div>
+  <div id="tvHud" class="hidden">
+    <div id="tvRound"></div>
+    <div id="tvHurry" class="hidden"></div>
+    <div id="tvStand"></div>
+    <div id="tvFeed"></div>
+  </div>
+  <div id="overlay"></div>
+  <div id="panels" class="hidden"></div>
+  <button id="tvStart"><span class="big-goose">🪿</span><b>Start the big screen</b><small>click anywhere · turns on sound</small></button>
+</div>
+<script type="module" src="/js/tv.js"></script>
+</body>
+</html>

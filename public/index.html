@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1d1238">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Goosy Race</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪿</text></svg>">
+<link rel="stylesheet" href="/fonts/fredoka.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="phone">
+<section id="join" class="screen">
+  <div class="sky-deco"><i class="cl c1"></i><i class="cl c2"></i><i class="cl c3"></i></div>
+  <div class="join-in">
+    <canvas id="heroGoose"></canvas>
+    <h1 class="logo"><span class="l1">GOOSY</span><span class="l2">RACE</span></h1>
+    <p class="tagline">The honkiest party race in town</p>
+    <div id="joinStatus" class="jstatus"><b>Connecting to the pond…</b></div>
+    <form id="joinForm" autocomplete="off">
+      <input id="nameIn" maxlength="14" placeholder="Your goose name" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button id="joinBtn" class="go big" type="submit">Waddle in! 🪿</button>
+    </form>
+    <ul class="how">
+      <li><span>👣</span> Tap left, right, left, right to run</li>
+      <li><span>🪽</span> FLAP to hop over things</li>
+      <li><span>🤸</span> Run onto trampolines to fly</li>
+      <li><span>🥚</span> Grab golden eggs for mischief</li>
+    </ul>
+  </div>
+  <a class="tvlink" href="/tv">📺 Got a laptop or TV? Open the big screen</a>
+  <div class="grass"></div>
+</section>
+
+<section id="game" class="screen hidden">
+  <header id="hud" class="lobby">
+    <div id="place">🪿</div>
+    <div id="brand">GOOSY RACE</div>
+    <div id="progress"><div class="track"><i class="fin">🏁</i></div><div id="dots"></div></div>
+    <div id="hurry" class="hidden"></div>
+    <button id="mute" aria-label="Sound on or off">🔊</button>
+  </header>
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="lobbyPanel" class="hidden"></div>
+    <div id="hint" class="hidden"></div>
+    <button id="btnItem" class="hidden"></button>
+    <div id="watchbar" class="hidden"></div>
+    <div id="overlay"></div>
+    <canvas id="yolk"></canvas>
+  </div>
+  <div id="controls" class="hidden">
+    <button id="btnFlap" aria-label="Flap">
+      <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M4 30 C14 8 36 2 60 6 C50 10 48 14 54 16 C44 18 42 22 48 25 C36 27 30 30 34 34 C22 34 12 34 4 30Z" fill="#fff" stroke="#2a2140" stroke-width="3.5" stroke-linejoin="round"/></svg>
+      <span>FLAP</span>
+    </button>
+    <div class="feet">
+      <button id="footL" class="foot" aria-label="Left foot">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 60 C30 56 29 52 28 48 L7 17 Q20 26 32 5 Q44 26 57 17 L36 48 C35 52 34 56 32 60Z" fill="#ff9a1f" stroke="#2a2140" stroke-width="4" stroke-linejoin="round"/><path d="M32 52 L11 20 M32 52 L32 10 M32 52 L53 20" stroke="#d96d08" stroke-width="3.2" stroke-linecap="round"/><circle cx="7" cy="16" r="2.6" fill="#2a2140"/><circle cx="32" cy="4.5" r="2.6" fill="#2a2140"/><circle cx="57" cy="16" r="2.6" fill="#2a2140"/></svg>
+        <span>LEFT</span>
+      </button>
+      <button id="footR" class="foot" aria-label="Right foot">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 60 C30 56 29 52 28 48 L7 17 Q20 26 32 5 Q44 26 57 17 L36 48 C35 52 34 56 32 60Z" fill="#ff9a1f" stroke="#2a2140" stroke-width="4" stroke-linejoin="round"/><path d="M32 52 L11 20 M32 52 L32 10 M32 52 L53 20" stroke="#d96d08" stroke-width="3.2" stroke-linecap="round"/><circle cx="7" cy="16" r="2.6" fill="#2a2140"/><circle cx="32" cy="4.5" r="2.6" fill="#2a2140"/><circle cx="57" cy="16" r="2.6" fill="#2a2140"/></svg>
+        <span>RIGHT</span>
+      </button>
+    </div>
+  </div>
+  <div id="panels" class="hidden"></div>
+</section>
+<div id="conn" class="hidden">🔌 Reconnecting…</div>
+<script type="module" src="/js/phone.js"></script>
+</body>
+</html>

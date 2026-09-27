@@ -1,0 +1,21 @@
+{
+  "name": "goosy-race",
+  "version": "1.0.0",
+  "description": "Goosy Race \u2014 an 8-player phone-browser party race for geese",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/sim.test.mjs test/rooms.e2e.mjs",
+    "load": "node test/load.mjs"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "ws": "^8.22.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "private": true
+}

@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "goosy", "runtimeExecutable": "node", "runtimeArgs": ["server.js"], "port": 3333 }
+  ]
+}
