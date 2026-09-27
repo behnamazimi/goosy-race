@@ -4,11 +4,13 @@ A silly party race for up to **8 players on their phones**. There's no app and n
 
 **▶ Play now: https://goosy-race.fly.dev**
 
-## Why does this exist?
+## Wait, why does this exist? 🤔
 
-Honestly, it started as an experiment. We (**Maastricht‑1**) wanted to see how well Claude Opus could build a whole multiplayer game from a single prompt, and we wanted to watch it think and work along the way. Then we played it and laughed way too much, and it turned out to be a genuinely nice little game. After that we kept playing and asked for tweaks, which Claude made too.
+Pure curiosity. We're **Maastricht‑1**, and we wondered: *can Claude Opus build a whole multiplayer party game in one go?* So we asked it, grabbed some snacks, and watched it think, plan and code its way to a goose race.
 
-So we thought: why not put it online? That's it. No big plan, just geese.
+Then we played it. There was honking. There was yelling at a giant cartoon farmer. Someone got a rotten egg splattered across their phone screen. It was way more fun than an "experiment" had any right to be. (We did ask for a few tweaks after the first version, and Claude honked back with fixes.)
+
+So we figured: why keep it to ourselves? No business plan, no roadmap. Just geese. 🪿
 
 ## How to play
 
