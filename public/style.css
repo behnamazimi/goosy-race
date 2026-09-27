@@ -442,7 +442,7 @@ body.tv #toast { font-size: 24px; top: 5vw; }
 body.landing { overflow-y: auto; }
 #landing {
   min-height: 100dvh; position: relative; display: flex; flex-direction: column; align-items: center; overflow: hidden;
-  background: linear-gradient(#5dbcf7 0%, #bfe8ff 62%, #d9f2ff 100%); padding: 16px 20px 110px;
+  background: linear-gradient(#5dbcf7 0%, #bfe8ff 62%, #d9f2ff 100%); padding: 16px 20px 130px;
 }
 .land-in { position: relative; z-index: 2; width: min(400px, 100%); display: flex; flex-direction: column; align-items: center; }
 .land-card { width: 100%; background: rgba(255,250,240,.95); border: 3px solid var(--ink); border-radius: 22px; padding: 14px; box-shadow: 0 5px 0 var(--ink); }
@@ -459,3 +459,18 @@ body.landing { overflow-y: auto; }
 .linkish { display: block; margin: 6px auto 0; background: none; border: 0; color: var(--blue); font: 600 14px var(--font); text-decoration: underline; }
 .steps { width: 100%; margin: 18px 0 8px; padding-left: 26px; display: grid; gap: 6px; font-size: 15px; color: var(--ink2); }
 .privacy { font-size: 12px; color: #5d5378; text-align: center; margin: 6px 8px 0; }
+
+/* landing footer, sitting on the grass */
+.land-foot {
+  position: absolute; left: 0; right: 0; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 3;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; padding: 0 16px;
+  color: #fff; font-size: 14px; font-weight: 500; text-shadow: 0 1px 2px rgba(29,18,56,.45);
+}
+.land-foot b { font-weight: 700; }
+.land-foot a {
+  display: inline-flex; align-items: center; gap: 6px; color: #fff; text-decoration: none; font-weight: 600;
+  background: rgba(29,18,56,.55); padding: 5px 12px; border-radius: 999px; text-shadow: none;
+}
+.land-foot a:hover, .land-foot a:focus-visible { background: rgba(29,18,56,.8); }
+.land-foot svg { width: 16px; height: 16px; }
+#landing .grass { height: 96px; }
