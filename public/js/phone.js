@@ -4,7 +4,7 @@ import { Net } from './net.js';
 import { Renderer, drawGooseIcon } from './render.js';
 import { World } from './world.js';
 import * as U from './ui.js';
-import { ROOM, fmtCode, roomUrl } from './room.js';
+import { ROOM, fmtCode, roomUrl, bindCodeInput, normCode, createAndGo } from './room.js';
 
 const { $, h, esc } = U;
 const store = {
@@ -42,6 +42,13 @@ if (ROOM) {
   $('#roomChip').classList.toggle('fresh', freshRoom);
 }
 $('#joinShare').addEventListener('click', () => shareRoom());
+bindCodeInput($('#retryCode'));
+$('#retryForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const c = normCode($('#retryCode').value);
+  if (c.length !== 5) { U.toast('Room codes have 5 characters, like KQ7-PZ'); return; }
+  location.href = `/r/${c}`;
+});
 nameIn.value = st.name;
 if (st.id) $('#joinBtn').textContent = 'Waddle back in! 🪿';
 const hero = $('#heroGoose');
@@ -58,7 +65,15 @@ let looping = false;
 
 $('#joinForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  if (st.roomErr || !ROOM) { location.href = '/'; return; }
+  if (st.roomErr || !ROOM) {
+    const err = ROOM_ERRORS[st.roomErr];
+    if (err && err.create) {
+      const btn = $('#joinBtn');
+      btn.disabled = true; btn.textContent = 'Building a pond…';
+      createAndGo().then((status) => { if (status) location.href = '/'; }).catch(() => { location.href = '/'; });
+    } else location.href = '/';
+    return;
+  }
   A.unlock();
   A.honk(1, 0.5);
   st.name = nameIn.value.trim().slice(0, 14);
@@ -191,8 +206,8 @@ function gameState(m) {
 }
 
 const ROOM_ERRORS = {
-  noroom: { cls: 'full', title: "This room doesn't exist (anymore)", sub: 'Check the code, or start a fresh one', btn: 'Create a new room 🪿' },
-  locked: { cls: 'full', title: 'This room is locked 🔒', sub: 'Ask the host to unlock it, or start your own', btn: 'Create a new room 🪿' },
+  noroom: { cls: 'full', title: "This room doesn't exist (anymore)", sub: 'Check the code and try again, or start a fresh room', btn: 'Create a new room 🪿', retry: true, create: true },
+  locked: { cls: 'full', title: 'This room is locked 🔒', sub: 'Ask the host to unlock it, or start your own room', btn: 'Create a new room 🪿', retry: true, create: true },
   busy: { cls: 'full', title: 'The pond is packed right now', sub: 'Too many races at once. Try again in a minute', btn: 'Back to start' },
   limited: { cls: 'full', title: 'Slow down, honker', sub: 'Too many attempts. Wait a few minutes and try again', btn: 'Back to start' },
 };
@@ -200,6 +215,10 @@ const ROOM_ERRORS = {
 function renderJoinStatus(m) {
   if (st.joined) { renderWatchbar(); return; }
   $('#roomChip').classList.toggle('hidden', !ROOM || !!st.roomErr);
+  // No room to join: a name field makes no sense, offer another code or a fresh room instead.
+  nameIn.classList.toggle('hidden', !!st.roomErr);
+  $('.tvlink').classList.toggle('hidden', !!st.roomErr);
+  $('#retryForm').classList.toggle('hidden', !(st.roomErr && ROOM_ERRORS[st.roomErr].retry));
   if (st.roomErr) {
     const e = ROOM_ERRORS[st.roomErr];
     const el = $('#joinStatus');

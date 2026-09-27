@@ -23,6 +23,10 @@
       <button type="button" id="joinShare" class="pill">🔗 Invite friends</button>
     </div>
     <div id="joinStatus" class="jstatus"><b>Connecting to the pond…</b></div>
+    <form id="retryForm" class="retry hidden" autocomplete="off">
+      <input id="retryCode" maxlength="6" placeholder="Try another code" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Room code">
+      <button class="pill" type="submit">Join</button>
+    </form>
     <form id="joinForm" autocomplete="off">
       <input id="nameIn" maxlength="14" placeholder="Your goose name" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
       <button id="joinBtn" class="go big" type="submit">Waddle in! 🪿</button>

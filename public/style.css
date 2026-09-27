@@ -490,3 +490,12 @@ body.landing { overflow-y: auto; }
 #join .how { grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
 #join .how li { font-size: 13px; line-height: 1.2; padding: 6px 8px; gap: 6px; }
 #join .how span { font-size: 17px; }
+
+/* dead-room page: retry with another code */
+.retry { width: 100%; display: flex; gap: 8px; margin: -2px 0 12px; }
+#retryCode {
+  flex: 1; min-width: 0; font: 700 20px var(--font); letter-spacing: 3px; text-align: center; text-transform: uppercase; padding: 10px;
+  border-radius: 14px; border: 3px solid var(--ink); background: #fff; color: var(--ink); outline: none; box-shadow: 0 4px 0 var(--ink); -webkit-user-select: text; user-select: text;
+}
+#retryCode::placeholder { letter-spacing: 0; font-weight: 600; color: #a79fbd; text-transform: none; }
+.retry .pill { font-size: 18px; padding: 8px 18px; }

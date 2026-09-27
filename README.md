@@ -1,45 +1,29 @@
 # 🪿 Goosy Race
 
-A party racing game for up to **8 players on their phones**. There's nothing to install on the phones: everyone scans a QR code and plays in the browser. Empty spots are filled with bots, so it also works with 2–3 people.
+A silly party race for up to **8 players on their phones**. There's no app and no account: one person creates a room, everyone else opens the link, and you tap your goose to the finish line. Empty spots are filled with bots, so it's fun with just 2 or 3 people too.
 
-**Play online:** https://goosy-race.fly.dev. Create a room, share the link, and race.
+**▶ Play now: https://goosy-race.fly.dev**
 
-## Run it locally
+## Why does this exist?
 
-```bash
-npm install
-npm start
-```
+Honestly, it started as an experiment. We (**Maastricht‑1**) wanted to see how well Claude Opus could build a whole multiplayer game from a single prompt, and we wanted to watch it think and work along the way. Then we played it and laughed way too much, and it turned out to be a genuinely nice little game. After that we kept playing and asked for tweaks, which Claude made too.
 
-Open the address the terminal prints (for example `http://192.168.1.153:3333`) and tap **Create a room**.
+So we thought: why not put it online? That's it. No big plan, just geese.
 
-- **Phones:** join with the room's invite link or QR code. For local play, everyone must be on the **same Wi-Fi** as the computer running the server.
-- **Big screen (optional, recommended):** open the room's `/r/CODE/tv` page on a laptop or TV (there's a link on the join screen) and click once to turn the sound on. It shows the QR code, the whole race, live standings and the ceremony. When a big screen is connected, the music plays only there.
+## How to play
 
-The first person in a room is the host 👑. They get **Start race**, can switch bots on or off, **lock** the room 🔒 and remove players.
+1. **Create a room** on the home page, then tap **Invite friends** to share the link (or show the QR code).
+2. Everyone picks a goose name and waddles in. The first person in is the host 👑 and presses **Start race**.
+3. Race!
+   - **Tap the glowing foot:** left, right, left, right. The faster you alternate, the faster you run.
+   - **FLAP** hops over fences, puddles, ice holes and bikes. The button glows gold when something is coming.
+   - **🤸 Trampolines** launch you sky-high, so you float over whatever comes next.
+   - **Golden ? eggs** give you a mystery item. Tap the item bubble to use it.
+   - Your goose is always in the **bottom lane** on your own phone, right above your thumbs.
 
-## Deploy (Fly.io)
+Waiting for friends? You can practise running and flapping in the lobby.
 
-The app runs as a single machine in Amsterdam. Rooms live in memory, so **never scale above one machine**.
-
-```bash
-fly deploy --ha=false
-```
-
-- `fly.toml` is set up for low traffic: the machine sleeps when nobody is connected and wakes in a second or two on the next visit. For always-on, set `auto_stop_machines = "off"` and `min_machines_running = 1`.
-- A deploy restarts the server. Players reconnect automatically and land back in their room's lobby, but a race in progress is lost, so deploy when nobody is mid-game.
-- Health check: `https://goosy-race.fly.dev/healthz`. Logs: `fly logs` (room created and closed, games started and finished, errors, slow ticks).
-- Before every deploy, run `npm test` (unit tests, plus two full games in separate rooms at the same time, lock and kick, anti-cheat, and restart recovery).
-- Load check: `npm run load -- https://goosy-race.fly.dev 40 8`. First raise the limits with `fly secrets set GOOSY_CREATE_LIMIT=1000 GOOSY_SOCKETS_PER_IP=1000`, and afterwards remove them with `fly secrets unset GOOSY_CREATE_LIMIT GOOSY_SOCKETS_PER_IP`.
-
-## How to play (tell your friends this 👇)
-
-- **Tap the glowing foot:** left, right, left, right. The faster you alternate, the faster your goose runs.
-- **FLAP** hops over fences, puddles, ice holes and bikes. The button glows gold when something is coming.
-- **🤸 Trampolines:** run onto one to get launched sky-high and float over whatever comes next.
-- Your goose is always in the **bottom lane** on your own phone, right above your thumbs.
-- **Golden ? eggs** give you a mystery item. Tap the item bubble to use it.
-- Everyone can practise in the lobby while they wait.
+**Got a laptop or TV?** Open the room's big-screen page (there's a link on the join screen). It shows the whole race, live standings and the award ceremony, and plays the music, so the phones don't have to.
 
 ### Three rounds
 
@@ -61,28 +45,31 @@ fly deploy --ha=false
   - 🪽 Wings let you fly over everything.
   - 🔀 Swap trades places with the goose ahead.
   - 🚀 Turbo Bread gives you a burst of speed.
-- **🏆 Ceremony:** a podium for the top three, and every player gets a silly award.
+- **🏆 Ceremony:** a podium for the top three, and a silly award for everyone.
 
-Being behind makes your goose slightly faster, and the best items go to the geese at the back. First-timers can still win.
+Being behind makes your goose slightly faster, and the best items go to the geese at the back. First-timers can win too.
 
-## Config
+### Host powers 👑
 
-| Env var | Default | What it does |
-|---|---|---|
-| `PORT` | `3333` | Server port |
-| `PUBLIC_URL` | LAN address | The site address used in QR codes and share links |
-| `ALLOWED_ORIGINS` | none | Extra origins allowed to open game sockets (comma-separated), for example a custom domain |
-| `GOOSY_MAX_ROOMS` | `300` | Room cap per machine |
-| `GOOSY_CREATE_LIMIT` | `15` | Rooms one IP may create per 10 minutes |
-| `GOOSY_SOCKETS_PER_IP` | `60` | Simultaneous connections per IP |
-| `START_ROUND` | `0` | Dev only: start the game at round 0, 1 or 2 |
-| `GOOSY_FAST` | off | Tests only: short intros and courses |
+Turn bots on or off, **lock** the room 🔒 so no one new can join, and remove players (tap ✕ twice).
 
-## How it's built
+## Run it yourself
 
-- `server.js`: HTTP, routing, rooms, security (limits, origin check, CSP) and health checks.
-- `server/room.js`: one private game: players, bots, race clock, surprise events, items and scoring.
-- `public/shared/sim.js`: goose physics and course generation, shared by the server (for the bots) and the phones. Each phone simulates its own goose, so tapping feels instant.
-- `public/js/render.js`: everything you see, hand-drawn on a canvas (no image files).
-- `public/js/audio.js`: every sound, synthesized with Web Audio (no audio files).
-- `public/js/phone.js`, `public/js/tv.js`: the phone controller and the big-screen view.
+You need [Node.js](https://nodejs.org) 26 or newer.
+
+```bash
+npm install
+npm start
+```
+
+Open the address the terminal prints (for example `http://192.168.1.153:3333`) on your phone and create a room. For local play, everyone must be on the same Wi-Fi as the computer running it.
+
+Want to change the game or deploy your own copy? Everything technical lives in **[AGENTS.md](AGENTS.md)**.
+
+## Privacy
+
+There are no accounts and no tracking. Your goose name only lives in the server's memory while you play. Your phone keeps a random ID so you can rejoin your room.
+
+---
+
+Hatched for fun by **Maastricht‑1** 🪿 · Built with Claude Opus via Claude Code.
