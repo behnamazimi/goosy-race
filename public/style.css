@@ -499,3 +499,13 @@ body.landing { overflow-y: auto; }
 }
 #retryCode::placeholder { letter-spacing: 0; font-weight: 600; color: #a79fbd; text-transform: none; }
 .retry .pill { font-size: 18px; padding: 8px 18px; }
+
+/* room fell asleep (idle timeout) */
+.sleep-card { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(29,18,56,.82); animation: fadeIn .3s; }
+.sleep-in {
+  width: min(360px, 100%); background: var(--paper); border: 3px solid var(--ink); border-radius: 24px; box-shadow: 0 7px 0 var(--ink);
+  padding: 18px; text-align: center; display: flex; flex-direction: column; gap: 8px; color: var(--ink);
+}
+.sleep-z { font-size: 56px; line-height: 1; animation: bounce .9s ease-in-out infinite alternate; }
+.sleep-in b { font-size: 24px; }
+.sleep-in span { font-size: 15px; color: #5d5378; margin-bottom: 6px; }

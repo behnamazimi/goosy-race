@@ -38,17 +38,22 @@ Dev shortcuts:
 | `public/js/room.js` | Room code from the URL, code formatting, `createAndGo()` |
 | `public/js/audio.js` | Synth SFX and chiptune music |
 | `public/js/ui.js` | Overlays: banners, countdown, results, podium and awards |
-| `test/` | `sim.test.mjs` (unit), `rooms.e2e.mjs` (real server), `helpers.mjs`, `load.mjs` |
+| `test/` | `sim.test.mjs` (unit), `rooms.e2e.mjs` and `idle.e2e.mjs` (real server), `helpers.mjs`, `load.mjs` |
 
 Routes: `/` is the landing page, `/r/CODE` a phone, `/r/CODE/tv` the big screen. `POST /api/rooms` creates a room. The socket connects to `/ws?room=CODE`. `/qr.svg?room=` and `/info?room=` serve the QR code and share URL.
 
 ## How it works (and the rules to keep)
 
 - **Rooms live in memory. Never run more than one server instance.** A second Fly machine would split rooms. Deploying restarts the process: clients reconnect automatically, and a `hello` with `rejoin: true` recreates their room (in the lobby). A race in progress is lost.
-- **Room lifecycle:**
+- **Room lifecycle** (all state is in memory, so everything below is also what keeps memory bounded):
   - 5-character codes from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`.
-  - A room is deleted after 5 minutes with no sockets.
-  - An unknown code gets `{type:'noroom'}`. Only a returning player (`rejoin`) may recreate it; random codes never create rooms.
+  - An **empty room** (no sockets) is deleted after 5 minutes.
+  - An **idle room** falls asleep after 60 minutes without gameplay input (`Room.lastActivity`), even with screens still open. The server sends `{type:'sleep'}`, hangs up with close code 4000 and deletes the room. Clients call `net.stop()` (no auto-reconnect) and show "Wake it up". Waking calls `net.resume()`, and the `hello` with `rejoin: true` recreates the room. Pings and a TV's own `hello` don't count as activity; otherwise a TV left on overnight would keep the room, and the Fly machine, awake forever.
+  - Disconnected players are pruned after 45 s in the lobby or final screen. During a race they're kept, driven by a bot, until the game returns to the lobby.
+  - Dead sockets are dropped by a ping/pong heartbeat (about 20 s).
+  - Per-IP rate-limit windows expire after 10 minutes.
+  - Caps: 300 rooms, 30 sockets per room (`{type:'roomfull'}`), and 60 sockets per IP.
+  - An unknown code gets `{type:'noroom'}`. Only someone who was in, or has seen, the room (`rejoin`) may recreate it; random codes never create rooms.
   - The host is the earliest-joined connected, non-pending player.
 - **Movement is client-authoritative** for your own goose, so taps feel instant. The phone runs `sim.js` locally and sends `{type:'s', t, x, z, vx, f}` at 20 Hz. The server (`Room.onRaceMsg`) **caps speed**: `tp` and `yeet` effects are exempt. It also accepts `fin` only near the finish line.
 - **Treat every client message as untrusted.** Validate the type and range in `room.js` before using it.
@@ -76,7 +81,8 @@ Routes: `/` is the landing page, `/r/CODE` a phone, `/r/CODE/tv` the big screen.
   - `noroom` and rejoin;
   - lock and kick;
   - speed-cap and fake-finish rejection;
-  - restart recovery.
+  - restart recovery;
+  - (`idle.e2e.mjs`, with tiny limits) idle rooms falling asleep and waking, activity keeping a room awake, a lone TV not keeping it awake, and the per-room socket cap.
 - Add a unit test to `test/sim.test.mjs` for rule changes, and an e2e case for new server messages.
 - For visual changes, check a phone viewport (375×812) and a short phone (375×600), and the TV at 1280×720.
 - Measured baseline: 40 simultaneous rooms × 8 phones used about 8–20% of one core and about 31 MB of RAM.
@@ -113,6 +119,8 @@ Routes: `/` is the landing page, `/r/CODE` a phone, `/r/CODE/tv` the big screen.
 | `GOOSY_MAX_ROOMS` | `300` | Room cap per machine |
 | `GOOSY_CREATE_LIMIT` | `15` | Rooms one IP may create per 10 minutes |
 | `GOOSY_SOCKETS_PER_IP` | `60` | Simultaneous sockets per IP (a whole party can share one IP) |
+| `GOOSY_SOCKETS_PER_ROOM` | `30` | Sockets per room: 8 players plus TVs and spectators |
+| `GOOSY_IDLE_CLOSE_MS` | `3600000` | A room falls asleep after this long without gameplay (1 hour) |
 | `START_ROUND` | `0` | Dev only: first round index (0–2) |
 | `GOOSY_FAST` | off | Tests only: short intros, results and courses |
 

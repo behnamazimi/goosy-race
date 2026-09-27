@@ -67,7 +67,11 @@ let looping = false;
 
 $('#joinForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  if (st.roomErr || !ROOM) {
+  if (st.roomErr === 'asleep') {
+    // waking a sleeping room: reconnect, and our hello (rejoin) brings it back
+    st.roomErr = null;
+    net.resume();
+  } else if (st.roomErr || !ROOM) {
     const err = ROOM_ERRORS[st.roomErr];
     if (err && err.create) {
       const btn = $('#joinBtn');
@@ -91,9 +95,9 @@ $('#joinForm').addEventListener('submit', (e) => {
 nameIn.addEventListener('focus', () => A.unlock());
 
 // `rejoin` = "I've been in this room before": lets the server bring the room back after a restart or deploy.
-function hello() { net.send({ type: 'hello', id: st.id, name: st.name, rejoin: !!st.id }); }
+function hello() { net.send({ type: 'hello', id: st.id, name: st.name, rejoin: !!st.id || !!st.sawRoom }); }
 net.onOpen = () => { $('#conn').classList.add('hidden'); if (st.joined) hello(); };
-net.onClose = () => { if (st.joined) $('#conn').classList.remove('hidden'); };
+net.onClose = () => { if (st.joined && !net.stopped) $('#conn').classList.remove('hidden'); };
 
 let wl = null;
 async function wakeLock() {
@@ -121,6 +125,19 @@ function leaveToJoinScreen(toast) {
 
 function onMsg(m) {
   switch (m.type) {
+    case 'sleep':
+      // nobody played for an hour: the server tucked the room in. Don't reconnect until someone wakes it.
+      net.stop();
+      $('#conn').classList.add('hidden');
+      if (st.joined) showSleep();
+      else { st.roomErr = 'asleep'; renderJoinStatus(st.lobby); }
+      break;
+    case 'roomfull':
+      net.stop();
+      st.roomErr = 'crowded';
+      if (st.joined) leaveToJoinScreen();
+      else renderJoinStatus(st.lobby);
+      break;
     case 'noroom':
       // while joined we just re-sent hello with rejoin, which brings the room back; only visitors see this
       if (!st.joined || m.limited) { st.roomErr = m.limited ? 'limited' : 'noroom'; renderJoinStatus(st.lobby); }
@@ -165,6 +182,7 @@ function onMsg(m) {
       break;
     case 'lobby': {
       st.lobby = m;
+      st.sawRoom = true;
       if (st.roomErr === 'noroom' || st.roomErr === 'busy') st.roomErr = null;
       renderJoinStatus(m);
       A.allowMusic(!m.tv);
@@ -211,6 +229,8 @@ const ROOM_ERRORS = {
   noroom: { cls: 'full', title: "This room doesn't exist (anymore)", sub: 'Check the code and try again, or start a fresh room', btn: 'Create a new room 🪿', retry: true, create: true },
   locked: { cls: 'full', title: 'This room is locked 🔒', sub: 'Ask the host to unlock it, or start your own room', btn: 'Create a new room 🪿', retry: true, create: true },
   busy: { cls: 'full', title: 'The pond is packed right now', sub: 'Too many races at once. Try again in a minute', btn: 'Back to start' },
+  asleep: { cls: 'busy', title: 'This room fell asleep 😴', sub: 'Nobody played for a while. Wake it up and waddle in', btn: 'Wake it up & join 🪿', keepName: true },
+  crowded: { cls: 'full', title: 'Too many screens in this room', sub: 'Try again in a bit, or start your own room', btn: 'Create a new room 🪿', create: true },
   limited: { cls: 'full', title: 'Slow down, honker', sub: 'Too many attempts. Wait a few minutes and try again', btn: 'Back to start' },
 };
 
@@ -218,8 +238,9 @@ function renderJoinStatus(m) {
   if (st.joined) { renderWatchbar(); return; }
   $('#roomChip').classList.toggle('hidden', !ROOM || !!st.roomErr);
   // No room to join: a name field makes no sense, offer another code or a fresh room instead.
-  nameIn.classList.toggle('hidden', !!st.roomErr);
-  $('.tvlink').classList.toggle('hidden', !!st.roomErr);
+  const blocking = st.roomErr && !ROOM_ERRORS[st.roomErr].keepName;
+  nameIn.classList.toggle('hidden', !!blocking);
+  $('.tvlink').classList.toggle('hidden', !!blocking);
   $('#retryForm').classList.toggle('hidden', !(st.roomErr && ROOM_ERRORS[st.roomErr].retry));
   if (st.roomErr) {
     const e = ROOM_ERRORS[st.roomErr];
@@ -249,6 +270,19 @@ function renderWatchbar() {
   el.innerHTML = st.spectator
     ? `👀 Watching ${round} · the pond is full, you'll get a spot when one frees up`
     : `👀 Watching ${round} · <b>you're in the next game!</b>`;
+}
+
+function showSleep() {
+  let el = $('#sleepCard');
+  if (!el) {
+    el = h('div', 'sleep-card');
+    el.id = 'sleepCard';
+    el.innerHTML = `<div class="sleep-in"><div class="sleep-z">😴</div><b>This room fell asleep</b>
+      <span>Nobody played for an hour, so we tucked it in.</span>
+      <button class="go big" id="wakeBtn">Wake it up 🪿</button></div>`;
+    document.body.appendChild(el);
+    $('#wakeBtn', el).addEventListener('click', () => { A.unlock(); A.honk(1, 0.5); el.remove(); net.resume(); });
+  }
 }
 
 function isHost() { return st.lobby && st.lobby.hostId === st.id; }

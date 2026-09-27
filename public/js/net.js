@@ -10,6 +10,7 @@ export class Net {
     this.onOpen = null;
     this.onClose = null;
     this.open = false;
+    this.stopped = false;
     this.connect();
     setInterval(() => this.ping(), 2500);
   }
@@ -42,11 +43,15 @@ export class Net {
       const was = this.open;
       this.open = false;
       if (was && this.onClose) this.onClose();
+      if (this.stopped) return; // e.g. the room fell asleep: wait for resume()
       this.backoff = Math.min(10000, (this.backoff || 700) * 1.5);
       setTimeout(() => this.connect(), this.backoff);
     };
     ws.onerror = () => { try { ws.close(); } catch {} };
   }
+  // Stop reconnecting (the server put the room to sleep / is full) until resume() is called.
+  stop() { this.stopped = true; try { this.ws && this.ws.close(); } catch {} }
+  resume() { if (!this.stopped) return; this.stopped = false; this.backoff = 0; this.connect(); }
   ping() { this.send({ type: 'ping', c: Date.now() }); }
   send(m) { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(m)); }
   now() { return Date.now() + this.offset; }

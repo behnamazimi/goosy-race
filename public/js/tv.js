@@ -26,6 +26,7 @@ $('#tvQr').src = `/qr.svg?room=${ROOM}`;
 $('#tvCode').textContent = fmtCode(ROOM);
 fetch(`/info?room=${ROOM}`).then((r) => r.json()).then((j) => { $('#tvUrl').textContent = j.url.replace(/^https?:\/\//, ''); }).catch(() => {});
 
+$('#tvWake').addEventListener('click', () => { $('#tvSleep').classList.add('hidden'); net.resume(); });
 $('#tvStart').addEventListener('click', () => {
   A.unlock();
   started = true;
@@ -39,6 +40,8 @@ function onMsg(m) {
   switch (m.type) {
     case 'welcome': welcomed = true; $('#tvNoRoom').classList.add('hidden'); break;
     case 'noroom': if (!welcomed) $('#tvNoRoom').classList.remove('hidden'); break;
+    case 'sleep': net.stop(); $('#tvSleep').classList.remove('hidden'); break;
+    case 'roomfull': net.stop(); $('#tvNoRoom').textContent = 'Too many screens are connected to this room right now.'; $('#tvNoRoom').classList.remove('hidden'); break;
     case 'lobby': {
       const before = lobby ? new Set(lobby.players.map((p) => p.id)) : new Set();
       lobby = m;

@@ -42,6 +42,7 @@ export class Phone {
     this.waiters = [];
     this.ws = new WebSocket(`ws://localhost:${port}/ws?room=${room}`);
     this.opened = new Promise((res, rej) => { this.ws.once('open', res); this.ws.once('error', rej); });
+    this.ws.on('close', (code) => { this.closeCode = code; });
     this.ws.on('message', (d) => {
       const m = JSON.parse(d);
       this.msgs.push(m);

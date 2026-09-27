@@ -53,6 +53,7 @@ export class Room {
     this.joinCounter = 0;
     this.locked = false;
     this.emptySince = Date.now();
+    this.lastActivity = Date.now(); // last real gameplay input (see onMessage); drives the sleep timer
     this.dead = false;
     this.game = {
       phase: 'lobby', round: -1, fillBots: true,
@@ -598,6 +599,8 @@ export class Room {
   // ---------------------------------------------------------------- messages
   onMessage(ws, m) {
     const game = this.game;
+    // anything a person does counts as activity; a TV (re)connecting on its own does not
+    if (!(m.type === 'hello' && m.tv)) this.lastActivity = Date.now();
     const p = ws.pid ? this.players.get(ws.pid) : null;
     const isHost = p && p.id === this.hostId();
     switch (m.type) {

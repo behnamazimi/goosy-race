@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test test/sim.test.mjs test/rooms.e2e.mjs",
+    "test": "node --test test/sim.test.mjs test/rooms.e2e.mjs test/idle.e2e.mjs",
     "load": "node test/load.mjs"
   },
   "license": "UNLICENSED",
