@@ -90,7 +90,7 @@ Routes: `/` is the landing page, `/r/CODE` a phone, `/r/CODE/tv` the big screen.
 ## Deploy and CI
 
 - `.github/workflows/test.yml` runs `npm test` on PRs to `main`.
-- `.github/workflows/deploy.yml` runs when a **PR is merged into `main`**, or manually via "Run workflow". It runs the tests, then `flyctl deploy --remote-only --ha=false`, then a `/healthz` check. Direct pushes to `main` do **not** deploy.
+- `.github/workflows/deploy.yml` runs on **every push to `main`** (merged PRs included), or manually via "Run workflow". It runs the tests, then `flyctl deploy --remote-only --ha=false`, then a `/healthz` check. Deploys never overlap (concurrency group).
 - The secret `FLY_API_TOKEN` is an app-scoped deploy token named "github-actions goosy-race". It **expires 2027‑09‑27**; renew it with:
   ```bash
   fly tokens create deploy -a goosy-race -x 8760h | gh secret set FLY_API_TOKEN -R behnamazimi/goosy-race
