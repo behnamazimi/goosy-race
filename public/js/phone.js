@@ -50,6 +50,8 @@ $('#retryForm').addEventListener('submit', (e) => {
   location.href = `/r/${c}`;
 });
 nameIn.value = st.name;
+// remember the name as it's typed, so leaving before joining (e.g. to share the invite) doesn't lose it
+nameIn.addEventListener('input', () => store.set('goosy-name', nameIn.value.trim().slice(0, 14)));
 if (st.id) $('#joinBtn').textContent = 'Waddle back in! 🪿';
 const hero = $('#heroGoose');
 let heroT = 0;

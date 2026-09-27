@@ -1,6 +1,6 @@
 # 🪿 Goosy Race
 
-A silly party race for up to **8 players on their phones**. There's no app and no account: one person creates a room, everyone else opens the link, and you tap your goose to the finish line. Empty spots are filled with bots, so it's fun with just 2 or 3 people too.
+A silly party race for up to **8 players on their phones**. There's no app and no account: one person creates a room, everyone else opens the link, and you tap your goose to the finish line. Empty spots are filled with bots if you prefer, so it's fun with just 2 or 3 people too.
 
 **▶ Play now: https://goosy-race.fly.dev**
 
