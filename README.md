@@ -6,7 +6,7 @@ A silly party race for up to **8 players on their phones**. There's no app and n
 
 ## Wait, why does this exist? 🤔
 
-Pure curiosity. We're **Maastricht‑1**, and we wondered: *can Claude Opus build a whole multiplayer party game in one go?* So we asked it, grabbed some snacks, and watched it think, plan and code its way to a goose race.
+We're **Maastricht‑1**, and we already knew Claude Opus could build a whole multiplayer party game in one go. We just wanted to *see* it happen. So we asked it, grabbed some snacks, and watched it think, plan and code its way to a goose race.
 
 Then we played it. There was honking. There was yelling at a giant cartoon farmer. Someone got a rotten egg splattered across their phone screen. It was way more fun than an "experiment" had any right to be. (We did ask for a few tweaks after the first version, and Claude honked back with fixes.)
 
